@@ -222,6 +222,7 @@ class PlanetMercury extends Planet {
   }
 }
 
+// Random meteors falling from the top down
 class Meteor extends AnimatedSprite {
   constructor(game, spritesheet, x, y, scaleFactor) {
     //  spritesheet, startX, startY, frameWidth, frameHeight, sheetWidth, frameDuration, frames, loop)
@@ -232,18 +233,26 @@ class Meteor extends AnimatedSprite {
     this.isNegative = false;
     this.xDecrement = 0;
     this.yDecrement = 0;
+    this.isDone = true;
+    this.isFalling = false;
+    this.waitTime = Math.floor(Math.random() * 300) + 1;
   }
 
   update() {
     // If the meteor is not falling check to see if it can fall.
 
-    if (this.count % this.waitTime == 0) {
+    if (this.count % this.waitTime == 0 && this.isDone) {
       this.isFalling = true;
+      this.isDone = false;
+
       if (Math.floor(Math.random() * 2) + 0 > 0) {
         this.isNegative = true;
       } else {
         this.isNegative = false;
       }
+
+      // Choose a size at which the meteor should be
+      this.scaleFactor = Math.floor(Math.random() * 1.1) + 0.5;
 
       // Choose the speed at which the meteor should fall
       this.xDecrement = Math.floor(Math.random() * 50) + 25;
@@ -259,15 +268,91 @@ class Meteor extends AnimatedSprite {
       this.y = this.y + this.yDecrement;
 
       // If we are done falling we should reset things
-      if (this.x > 1920 + 400 || this.y > 1080 + 400) {
+      if (this.x > 1920 + 500 || this.y > 1080 + 500) {
         this.isFalling = false;
 
         // Choose the new starting coordinates randomly
-        this.y = -500;
-        this.x = Math.floor(Math.random() * 1920 + 300) + -300;
+        this.y = -1000;
+        this.x = Math.floor(Math.random() * 1920 + 300) + -500;
 
         // Generate the next amount of time to wait for another meteor.
-        this.waitTime = Math.floor(Math.random() * 500) + 100
+        this.waitTime = Math.floor(Math.random() * 300) + 1;
+        this.isDone = true;
+      }
+    }
+    this.count++;
+  }
+}
+
+
+// Random meteors coming from the vanishing point
+class MeteorFromCenter extends AnimatedSprite {
+  constructor(game, spritesheet, x, y, scaleFactor) {
+    //  spritesheet, startX, startY, frameWidth, frameHeight, sheetWidth, frameDuration, frames, loop)
+    super(game, new Animation(spritesheet, 0, 0, 236, 398, 2596, .07, 11, true, 45), x, y, scaleFactor);
+    this.count = 1;
+    this.isFalling = false;
+    this.waitTime = 400;
+    this.isNegativeX = false;
+    this.xDecrement = 0;
+    this.yDecrement = 0;
+    this.isDone = true;
+    this.isFalling = false;
+    this.waitTime = Math.floor(Math.random() * 12) + 1;
+    this.scaleFactor = 0.01;
+  }
+
+  update() {
+    // If the meteor is not falling check to see if it can fall.
+    if (this.count % this.waitTime == 0 && this.isDone) {
+      this.isFalling = true;
+      this.isDone = false;
+
+      // Choose the starting location and the starting size
+      this.x = 1920/2;
+      this.y = 1080/2;
+      this.scaleFactor = 0.01;
+
+
+
+      if (Math.floor(Math.random() * 1) + 2 > 0) {
+        this.isNegativeX = true;
+      } else {
+        this.isNegativeX = false;
+      }
+      if (Math.floor(Math.random() * 1) + 2 > 0) {
+        this.isNegativeY = true;
+      } else {
+        this.isNegativeY = false;
+      }
+
+      // Choose the speed at which the meteor should fall
+      this.xDecrement = Math.floor(Math.random() * 25) + 1;
+      this.yDecrement = Math.floor(Math.random() * 25) + 1;
+    }
+    //
+    if (this.isFalling) {
+      if (this.isNegativeX) {
+        this.x = this.x + (++this.xDecrement);
+      } else {
+        this.x = this.x - (++this.xDecrement);
+      }
+
+      if (this.isNegativeY) {
+        this.y = this.y + this.yDecrement;
+      } else {
+        this.y = this.y - (++this.yDecrement);
+      }
+
+      this.scaleFactor = this.scaleFactor += 0.01;
+
+      // If we are done falling we should reset things
+      if (this.x > 1920 + 300 || this.y > 1080 + 300){// || this.x  -1920 - 300 || this.y - 1080 - 300) {
+        this.isFalling = false;
+        this.isDone = true;
+        // Generate the next amount of time to wait for another meteor.
+        this.waitTime = Math.floor(Math.random() * 10) + 1;
+
       }
     }
     this.count++;
@@ -292,8 +377,10 @@ AM.downloadAll(function () {
   let planetSaturn = new PlanetSaturn(gameEngine, AM.getAsset(assets.planetSaturn),         1920/2 + 100, 1080/3, 3);
   let planetMercury = new PlanetMercury(gameEngine, AM.getAsset(assets.planetMercury),      1920/2, 1080/3 - 250, 3.9);
   let planetMars = new PlanetMars(gameEngine, AM.getAsset(assets.planetMars),               1920/2, 1080/3 - 250, 2.5);
-  let meteor1 = new Meteor(gameEngine, AM.getAsset(assets.meteor), -300, -300, 1);
-  let meteor2 = new Meteor(gameEngine, AM.getAsset(assets.meteor), -300, -300, 1);
+  let meteor1 = new Meteor(gameEngine, AM.getAsset(assets.meteor), -300, -500, 1);
+  let meteor2 = new Meteor(gameEngine, AM.getAsset(assets.meteor), 0, -500, 1);
+  let meteorVanishingPoint = new MeteorFromCenter(gameEngine, AM.getAsset(assets.meteor), 1920/2, 1080/2, 0.01);
+
 
   // gameEngine.addEntity(background01);
   gameEngine.addEntity(background);
@@ -306,6 +393,8 @@ AM.downloadAll(function () {
   gameEngine.addEntity(planetMercury);
   gameEngine.addEntity(meteor1);
   gameEngine.addEntity(meteor2);
+  gameEngine.addEntity(meteorVanishingPoint);
+
 
   console.log('Finished downloading assets');
 });
