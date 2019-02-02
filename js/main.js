@@ -1,18 +1,18 @@
-// const assets = {
-//   background01:   './img/background01.jpg',
-//   background02:   './img/background02.jpg',
-//   background03:   './img/background03.jpg',
-//   background04:   './img/background04.jpg',
-//   background05:   './img/background05.jpg',
-//   background06:   './img/background06.jpg',
-//   planetEarth:    './img/Planet-1-412_80x80.png'
-// };
+const assets = {
+  background01:   './img/background01.jpg',
+  background02:   './img/background02.jpg',
+  background03:   './img/background03.jpg',
+  background04:   './img/background04.jpg',
+  background05:   './img/background05.jpg',
+  background06:   './img/background06.jpg',
+  planetEarth:    './img/Planet-1-412_80x80.png'
+};
 
 const AM = new AssetManager();
 
-// for (const key of Object.keys(assets)) {
-//   AM.queueDownload(assets[key]);
-// }
+for (const key of Object.keys(assets)) {
+  AM.queueDownload(assets[key]);
+}
 
 
 class Animation {
@@ -72,21 +72,22 @@ class Animation {
 }
 
 // no inheritance
-class Background { //(game, spritesheet) {
-  constructor(game, spritesheet) {
-    this.x = 0;
-    this.y = 0;
+class FixedImage { //(game, spritesheet) {
+  constructor(game, spritesheet,x, y, w, h) {
+    this.x = x;
+    this.y = y;
+    this.w = w;
+    this.h = h;
     this.spritesheet = spritesheet;
     this.game = game;
-    this.ctx = game.ctx;
   }
 
   update() {
 
   };
 
-  draw() {
-      this.ctx.drawImage(this.spritesheet, this.x, this.y);
+  draw(ctx) {
+    ctx.drawImage(this.spritesheet, this.x, this.y, this.w, this.h);
   }
 
 }
@@ -131,13 +132,9 @@ AM.downloadAll(function () {
   gameEngine.init(ctx);
   gameEngine.start();
 
-  let background01 = new Background(gameEngine, './img/background01.jpg');
-
-
+  let background01 = new FixedImage(gameEngine, AM.getAsset(assets.background01), 0, 0, 1920, 1080);
 
   gameEngine.addEntity(background01);
-
-
 
   console.log('Finished downloading assets');
 });
