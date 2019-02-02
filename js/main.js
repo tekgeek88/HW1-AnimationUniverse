@@ -10,9 +10,8 @@ const assets = {
   planetUranus:   './img/planeturanus-90x90x2700.png',
   planetSaturn:   './img/planetsaturn-192x110-5760.png',
   planetMercury:  './img/planetmercury-70x70x2100.png',
-  planetMars:     './img/planetmars-100x100x3000.png'
-
-
+  planetMars:     './img/planetmars-100x100x3000.png',
+  meteor:         './img/meteor-236x398x2596.png'
 };
 
 const AM = new AssetManager();
@@ -20,6 +19,7 @@ const AM = new AssetManager();
 for (const key of Object.keys(assets)) {
   AM.queueDownload(assets[key]);
 }
+
 
 
 class Animation {
@@ -121,6 +121,25 @@ class Planet {
   }
 }
 
+class AnimatedSprite {
+  // Let x, y be the center of the circle
+  constructor(game, animation, x, y, scaleFactor) {
+    this.game = game;
+    this.animation = animation;
+    this.x = x;
+    this.y = y;
+    this.scaleFactor = scaleFactor;
+  }
+
+  update() {
+    // Need to implement in superclasses
+  }
+
+  draw(ctx) {
+    this.animation.drawFrame(this.game.clockTick, ctx, this.x, this.y, this.scaleFactor);
+  }
+}
+
 class PlanetEarth extends Planet {
   constructor(game, spritesheet, x, y, r) {
     //  spritesheet, startX, startY, frameWidth, frameHeight, sheetWidth, frameDuration, frames, loop)
@@ -203,11 +222,64 @@ class PlanetMercury extends Planet {
   }
 }
 
+class Meteor extends AnimatedSprite {
+  constructor(game, spritesheet, x, y, scaleFactor) {
+    //  spritesheet, startX, startY, frameWidth, frameHeight, sheetWidth, frameDuration, frames, loop)
+    super(game, new Animation(spritesheet, 0, 0, 236, 398, 2596, .07, 11, true, 45), x, y, scaleFactor);
+    this.count = 1;
+    this.isFalling = false;
+    this.waitTime = 400;
+    this.isNegative = false;
+    this.xDecrement = 0;
+    this.yDecrement = 0;
+  }
+
+  update() {
+    // If the meteor is not falling check to see if it can fall.
+
+    if (this.count % this.waitTime == 0) {
+      this.isFalling = true;
+      if (Math.floor(Math.random() * 2) + 0 > 0) {
+        this.isNegative = true;
+      } else {
+        this.isNegative = false;
+      }
+
+      // Choose the speed at which the meteor should fall
+      this.xDecrement = Math.floor(Math.random() * 50) + 25;
+      this.yDecrement = Math.floor(Math.random() * 50) + 25;
+    }
+
+    if (this.isFalling) {
+      if (this.isNegative) {
+        this.x = this.x + this.xDecrement;
+      } else {
+        this.x = this.x - this.xDecrement;
+      }
+      this.y = this.y + this.yDecrement;
+
+      // If we are done falling we should reset things
+      if (this.x > 1920 + 400 || this.y > 1080 + 400) {
+        this.isFalling = false;
+
+        // Choose the new starting coordinates randomly
+        this.y = -500;
+        this.x = Math.floor(Math.random() * 1920 + 300) + -300;
+
+        // Generate the next amount of time to wait for another meteor.
+        this.waitTime = Math.floor(Math.random() * 500) + 100
+      }
+    }
+    this.count++;
+  }
+}
+
 
 AM.downloadAll(function () {
 
   const canvas = document.getElementById('universe');
   const ctx = canvas.getContext('2d');
+  ctx.imageSmoothingEnabled = false;    // prevent anti-aliasing of drawn image
 
   const gameEngine = new GameEngine();
   gameEngine.init(ctx);
@@ -220,6 +292,8 @@ AM.downloadAll(function () {
   let planetSaturn = new PlanetSaturn(gameEngine, AM.getAsset(assets.planetSaturn),         1920/2 + 100, 1080/3, 3);
   let planetMercury = new PlanetMercury(gameEngine, AM.getAsset(assets.planetMercury),      1920/2, 1080/3 - 250, 3.9);
   let planetMars = new PlanetMars(gameEngine, AM.getAsset(assets.planetMars),               1920/2, 1080/3 - 250, 2.5);
+  let meteor1 = new Meteor(gameEngine, AM.getAsset(assets.meteor), -300, -300, 1);
+  let meteor2 = new Meteor(gameEngine, AM.getAsset(assets.meteor), -300, -300, 1);
 
   // gameEngine.addEntity(background01);
   gameEngine.addEntity(background);
@@ -230,6 +304,8 @@ AM.downloadAll(function () {
   gameEngine.addEntity(planetSaturn);
   gameEngine.addEntity(planetMars);
   gameEngine.addEntity(planetMercury);
+  gameEngine.addEntity(meteor1);
+  gameEngine.addEntity(meteor2);
 
   console.log('Finished downloading assets');
 });
