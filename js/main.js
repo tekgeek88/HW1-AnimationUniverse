@@ -255,8 +255,8 @@ class Meteor extends AnimatedSprite {
       this.scaleFactor = Math.floor(Math.random() * 1.1) + 0.5;
 
       // Choose the speed at which the meteor should fall
-      this.xDecrement = Math.floor(Math.random() * 50) + 10;
-      this.yDecrement = Math.floor(Math.random() * 50) + 10;
+      this.xDecrement = Math.floor(Math.random() * 30) + 1;
+      this.yDecrement = Math.floor(Math.random() * 30) + 1;
     }
 
     if (this.isFalling) {
@@ -332,8 +332,8 @@ class MeteorFromCenter extends AnimatedSprite {
       }
 
       // Choose the speed at which the meteor should fall
-      this.xDecrement = Math.floor(Math.random() * 25) + 0;
-      this.yDecrement = Math.floor(Math.random() * 25) + 0;
+      this.xDecrement = Math.floor(Math.random() * 15) + 0;
+      this.yDecrement = Math.floor(Math.random() * 15) + 0;
     }
     //
     if (this.isFalling) {
@@ -349,7 +349,7 @@ class MeteorFromCenter extends AnimatedSprite {
         this.y = this.y + this.yDecrement;
       }
 
-      this.scaleFactor = this.scaleFactor += 0.02;
+      this.scaleFactor = this.scaleFactor += this.scaleFactorScaler;
 
       // If we are done falling we should reset things
       // Two cases:
