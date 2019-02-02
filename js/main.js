@@ -313,8 +313,7 @@ class MeteorFromCenter extends AnimatedSprite {
       this.x = 1920/2;
       this.y = 1080/2;
       this.scaleFactor = 0.01;
-      this.scaleFactorScaler = Math.floor(Math.random() * 2) + 0.1;
-      console.log("Scaler: " + this.scaleFactorScaler);
+      this.scaleFactorScaler = Math.floor(Math.random() * 1.2) + 0.01;
 
 
       let randomA = Math.floor(Math.random() * 2) + 0;
@@ -332,25 +331,27 @@ class MeteorFromCenter extends AnimatedSprite {
       }
 
       // Choose the speed at which the meteor should fall
-      this.xDecrement = Math.floor(Math.random() * 15) + 0;
-      this.yDecrement = Math.floor(Math.random() * 15) + 0;
+      this.xDecrement = Math.floor(Math.random() * 0.01) + 0;
+      this.yDecrement = Math.floor(Math.random() * 0.01) + 0;
     }
     //
     if (this.isFalling) {
       if (this.isNegativeX) {
-        this.x = this.x - (++this.xDecrement);
+        this.x -= (++this.xDecrement);
       } else {
-        this.x = this.x + (++this.xDecrement);
+        this.x += (++this.xDecrement);
       }
 
       if (this.isNegativeY) {
-        this.y = this.y - (++this.yDecrement);
+        this.y -= (++this.yDecrement);
       } else {
-        this.y = this.y + this.yDecrement;
+        this.y += (++this.yDecrement);
       }
 
-      this.scaleFactor = this.scaleFactor += this.scaleFactorScaler;
+      this.scaleFactor += this.scaleFactorScaler;
 
+      console.log('x: ' + this.x + ' y: ' + this.y + ' scaleFactor: ' + this.scaleFactor + ' scaleFactorScaler: ' + this.scaleFactorScaler);
+      console.log('isNegtive ' + this.isNegativeX );
       // If we are done falling we should reset things
       // Two cases:
       // Meteor is traveling in the positive x direction or in the negative x direction
@@ -358,12 +359,12 @@ class MeteorFromCenter extends AnimatedSprite {
         this.isFalling = false;
         this.isDone = true;
         // Generate the next amount of time to wait for another meteor.
-        this.waitTime = Math.floor(Math.random() * 10) + 1;
+        this.waitTime = Math.floor(Math.random() * 20) + 1;
       } else if ((!this.isNegativeX) && this.x > 1920 + 500){
         this.isFalling = false;
         this.isDone = true;
         // Generate the next amount of time to wait for another meteor.
-        this.waitTime = Math.floor(Math.random() * 10) + 1;
+        this.waitTime = Math.floor(Math.random() * 500) + 1;
       }
     }
     this.count++;
@@ -390,8 +391,10 @@ AM.downloadAll(function () {
   let planetMars = new PlanetMars(gameEngine, AM.getAsset(assets.planetMars),               1920/2, 1080/3 - 250, 2.5);
   let meteor1 = new Meteor(gameEngine, AM.getAsset(assets.meteor), -300, -500, 1);
   let meteor2 = new Meteor(gameEngine, AM.getAsset(assets.meteor), 0, -500, 1);
+  let meteor3 = new Meteor(gameEngine, AM.getAsset(assets.meteor), 0, -500, 1);
   let meteorVanishingPoint1 = new MeteorFromCenter(gameEngine, AM.getAsset(assets.meteor), 1920/2, 1080/2, 0.01);
   let meteorVanishingPoint2 = new MeteorFromCenter(gameEngine, AM.getAsset(assets.meteor), 1920/2, 1080/2, 0.01);
+  let meteorVanishingPoint3 = new MeteorFromCenter(gameEngine, AM.getAsset(assets.meteor), 1920/2, 1080/2, 0.01);
 
 
   // gameEngine.addEntity(background01);
@@ -405,8 +408,10 @@ AM.downloadAll(function () {
   gameEngine.addEntity(planetMercury);
   gameEngine.addEntity(meteor1);
   gameEngine.addEntity(meteor2);
+  gameEngine.addEntity(meteor3);
   gameEngine.addEntity(meteorVanishingPoint1);
   gameEngine.addEntity(meteorVanishingPoint2);
+  gameEngine.addEntity(meteorVanishingPoint3);
 
 
   console.log('Finished downloading assets');
