@@ -9,7 +9,20 @@
     <script type="text/javascript" src="./js/main.js"></script>
 
   </head>
-  <body>
-    <canvas id="universe" tabindex="1" width="1920" height="1080"></canvas>
+  <body onresize="resize_canvas()">
+  <canvas id="universe" tabindex="1" width="1920" height="1080"></canvas>
+  <script type="text/javascript">
+    function resize_canvas(){
+      canvas = document.getElementById("universe");
+      if (canvas.width  < window.innerWidth) {
+        canvas.width  = window.innerWidth;
+      }
+
+      if (canvas.height < window.innerHeight) {
+        canvas.height = window.innerHeight;
+      }
+    }
+  </script>
+
   </body>
 </html>
