@@ -11,7 +11,8 @@ const assets = {
   planetSaturn:   './img/planetsaturn-192x110-5760.png',
   planetMercury:  './img/planetmercury-70x70x2100.png',
   planetMars:     './img/planetmars-100x100x3000.png',
-  meteor:         './img/meteor-236x398x2596.png'
+  meteor:         './img/meteor-236x398x2596.png',
+  spaceship:      './img/spaceship-64x64x512.png'
 };
 
 const AM = new AssetManager();
@@ -348,10 +349,9 @@ class MeteorFromCenter extends AnimatedSprite {
         this.y += (++this.yDecrement);
       }
 
+      // This helps the meteors increase speed as they get closer
       this.scaleFactor += this.scaleFactorScaler;
 
-      console.log('x: ' + this.x + ' y: ' + this.y + ' scaleFactor: ' + this.scaleFactor + ' scaleFactorScaler: ' + this.scaleFactorScaler);
-      console.log('isNegtive ' + this.isNegativeX );
       // If we are done falling we should reset things
       // Two cases:
       // Meteor is traveling in the positive x direction or in the negative x direction
@@ -372,6 +372,73 @@ class MeteorFromCenter extends AnimatedSprite {
 }
 
 
+
+
+// Random meteors coming from the vanishing point
+class SpaceShipFromEdge extends AnimatedSprite {
+  constructor(game, spritesheet, x, y, scaleFactor) {
+    //  spritesheet, startX, startY, frameWidth, frameHeight, sheetWidth, frameDuration, frames, loop)
+    super(game, new Animation(spritesheet, 0, 6*64, 64, 64, 512, .07, 3, true), x, y, scaleFactor);
+    this.count = 1;
+    this.x = x;
+    this.intialX = x;
+    this.y = y;
+    this.intialY = y;
+    this.isFalling = false;
+    this.waitTime = 400;
+    this.isNegativeX = false;
+    this.xDecrement = 0;
+    this.yDecrement = 0;
+    this.isDone = true;
+    this.isFalling = false;
+    this.waitTime = Math.floor(Math.random() * 12) + 1;
+    this.initialScale = scaleFactor;
+    this.scaleFactor = scaleFactor;
+    this.scaleFactorScaler = 0.006;
+  }
+
+  update() {
+    // If the meteor is not falling check to see if it can fall.
+    if (this.count % this.waitTime == 0 && this.isDone) {
+      this.isFalling = true;
+      this.isDone = false;
+
+      // Choose the starting location and the starting size
+      this.x = this.intialX;
+      this.y = this.intialY;
+      this.scaleFactor = this.initialScale;
+
+      // Choose the speed at which the meteor should fall
+      this.xDecrement = 2;
+      this.yDecrement = 2;
+    }
+    //
+    if (this.isFalling) {
+      this.x -= (this.xDecrement + 0.01);
+      this.y += (this.yDecrement + 0.01);
+
+      this.scaleFactor -= this.scaleFactorScaler;
+
+      console.log('x: ' + this.x + ' y: ' + this.y + ' scaleFactor: ' + this.scaleFactor + ' scaleFactorScaler: ' + this.scaleFactorScaler);
+      console.log('isNegtive ' + this.isNegativeX);
+      // If we are done falling we should reset things
+      // Two cases:
+      // Meteor is traveling in the positive x direction or in the negative x direction
+      if (this.x < (1920 / 2) - 300) {
+        this.isFalling = false;
+        this.isDone = true;
+        // Generate the next amount of time to wait for another meteor.
+        this.waitTime = Math.floor(Math.random() * 500) + 1;
+      }
+    }
+    this.count++;
+  }
+}
+
+
+
+
+
 AM.downloadAll(function () {
 
   const canvas = document.getElementById('universe');
@@ -383,6 +450,7 @@ AM.downloadAll(function () {
   gameEngine.start();
 
   let background = new FixedImage(gameEngine, AM.getAsset(assets.background04), 0, 0, 1920, 1080);
+  let spaceship = new FixedImage(gameEngine, AM.getAsset(assets.spaceship), 0, 0, 150, 150);
 
   let planetEarth = new PlanetEarth(gameEngine, AM.getAsset(assets.planetEarth),            1920/2, 1080/3, 1.6);
   let planetUranus = new PlanetUranus(gameEngine, AM.getAsset(assets.planetUranus),         1920/2, 1080/3, 2);
@@ -395,7 +463,7 @@ AM.downloadAll(function () {
   let meteorVanishingPoint1 = new MeteorFromCenter(gameEngine, AM.getAsset(assets.meteor), 1920/2, 1080/2, 0.01);
   let meteorVanishingPoint2 = new MeteorFromCenter(gameEngine, AM.getAsset(assets.meteor), 1920/2, 1080/2, 0.01);
   let meteorVanishingPoint3 = new MeteorFromCenter(gameEngine, AM.getAsset(assets.meteor), 1920/2, 1080/2, 0.01);
-
+  let spaceShipTopRightEdge = new SpaceShipFromEdge(gameEngine, AM.getAsset(assets.spaceship), 1550, -100, 3);
 
   // gameEngine.addEntity(background01);
   gameEngine.addEntity(background);
@@ -412,6 +480,7 @@ AM.downloadAll(function () {
   gameEngine.addEntity(meteorVanishingPoint1);
   gameEngine.addEntity(meteorVanishingPoint2);
   gameEngine.addEntity(meteorVanishingPoint3);
+  gameEngine.addEntity(spaceShipTopRightEdge);
 
 
   console.log('Finished downloading assets');
