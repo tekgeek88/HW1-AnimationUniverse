@@ -418,9 +418,6 @@ class SpaceShipFromEdge extends AnimatedSprite {
       this.y += (this.yDecrement + 0.01);
 
       this.scaleFactor -= this.scaleFactorScaler;
-
-      console.log('x: ' + this.x + ' y: ' + this.y + ' scaleFactor: ' + this.scaleFactor + ' scaleFactorScaler: ' + this.scaleFactorScaler);
-      console.log('isNegtive ' + this.isNegativeX);
       // If we are done falling we should reset things
       // Two cases:
       // Meteor is traveling in the positive x direction or in the negative x direction
